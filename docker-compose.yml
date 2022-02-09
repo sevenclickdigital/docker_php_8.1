@@ -1,10 +1,10 @@
 version: "3.7"
 services:
-    # imagem Gospel Tabs Back Auth
+    # imagem Docker
     docker:
         build:
             args:
-                user: melo
+                user: seven
                 uid: 1000
             context: ./
             dockerfile: Dockerfile
@@ -17,7 +17,7 @@ services:
             - redis
             - queue
         networks:
-            - laravel_net
+            - laravel_networks
 
     # nginx
     nginx:
@@ -29,7 +29,7 @@ services:
             - ./:/var/www
             - ./docker/nginx/:/etc/nginx/conf.d/
         networks:
-            - laravel_net
+            - laravel_networks
 
     # mysql
     mysql:
@@ -45,13 +45,13 @@ services:
         ports:
             - 3307:3306
         networks:
-            - laravel_net
+            - laravel_networks
 
     # queue
     queue:
         build:
             args:
-                user: melo
+                user: seven
                 uid: 1000
             context: ./
             dockerfile: Dockerfile
@@ -62,15 +62,30 @@ services:
         depends_on:
             - redis
         networks:
-            - laravel_net
-
+            - laravel_networks
+    
+    #phpMyadmin
+    phpMyadmin:
+        image: phpmyadmin/phpmyadmin
+        restart: unless-stopped
+        ports:
+            - "8081:80"
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: ${DB_USERNAME}
+            PMA_PASSWORD: ${DB_PASSWORD}
+        depends_on:
+            - mysql
+        networks:
+            - laravel_networks
+    
     #redis
     redis:
         image: redis:latest
         restart: unless-stopped
         networks:
-            - laravel_net
+            - laravel_networks
 
 networks:
-    laravel_net:
+    laravel_networks:
         driver: bridge
