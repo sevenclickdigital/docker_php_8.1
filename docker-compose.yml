@@ -1,5 +1,6 @@
 version: "3.7"
 services:
+
     # imagem Docker
     docker:
         build:
@@ -24,10 +25,11 @@ services:
         image: nginx:alpine
         restart: unless-stopped
         ports:
-            - ${NGINX_PORT}:80
+            - ${NGINX_PORT:-81}:81
         volumes:
             - ./../:/var/www
             - ./nginx/:/etc/nginx/conf.d/
+            - ./certs/:/etc/nginx/ssl/
         networks:
             - laravel_networks
 
@@ -43,7 +45,7 @@ services:
         volumes:
             - ./.docker/mysql/dbdata:/var/lib/mysql
         ports:
-            - ${MYSQL_PORT}:3306
+            - ${MYSQL_PORT:-3306}:3306
         networks:
             - laravel_networks
 
@@ -52,7 +54,7 @@ services:
         image: phpmyadmin/phpmyadmin
         restart: unless-stopped
         ports:
-            - ${PHPMYADMIN_PORT}:80
+            - ${PHPMYADMIN_PORT:-82}:80
         environment:
             PMA_HOST: mysql
             PMA_USER: ${DB_USERNAME}
@@ -68,8 +70,8 @@ services:
         image: mailhog/mailhog:latest
         restart: unless-stopped
         ports:
-            - ${MAIL1_PORT}:1025
-            - ${MAIL2_PORT}:8025
+            - ${MAIL_PORT:-1025}:1025
+            - ${MAIL2_PORT:-83}:8025
         networks:
             - laravel_networks
 
@@ -103,7 +105,7 @@ services:
     memcached:
         image: 'memcached:alpine'
         ports:
-        - '11211:11211'
+        - ${MEMCACHED}:11211
         networks:
             - laravel_networks
 
